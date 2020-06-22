@@ -108,6 +108,7 @@ class MD_AD9833
     MODE_SQUARE1,   ///< Set output to a square wave at selected frequency
     MODE_SQUARE2,   ///< Set output to a square wave at half selected frequency
     MODE_TRIANGLE,  ///< Set output to a triangle wave at selected frequency
+    MODE_ON			// ShaggyDog JUN-2020: < Set output all ON	
   };
 
  /**
@@ -179,6 +180,11 @@ class MD_AD9833
    * \return true if successful, false otherwise
    */
   boolean setMode(mode_t mode);
+  boolean setModeSD(mode_t mode); // ShaggyDog JUN-2020 : does not switch on output while set mode  
+// ShaggyDog JUN-2020; removed bitClear for AD_SLEEP1 and AD_SLEEP12 for 
+// MODE_SINE, MODE_SQUARE1, MODE_SQUARE2, MODE_TRIANGLE
+// so, if signal is switched off, it would not get on by changing the for on the signal
+// added a new MODE_ON command to switch the output signal ON
 
   /**
   * Get current frequency output channel

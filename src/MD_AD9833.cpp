@@ -222,6 +222,59 @@ boolean MD_AD9833::setMode(mode_t mode)
     bitClear(_regCtl, AD_SLEEP1);
     bitClear(_regCtl, AD_SLEEP12);
     break;
+  case MODE_ON: // ShaggyDog JUN-2020
+    PRINTS("ON");
+    bitClear(_regCtl, AD_SLEEP1);
+    bitClear(_regCtl, AD_SLEEP12);
+    break;
+  }
+
+  spiSend(_regCtl);
+
+  return(true);
+}
+
+boolean MD_AD9833::setModeSD(mode_t mode)  
+// ShaggyDog JUN-2020; removed bitClear for AD_SLEEP1 and AD_SLEEP12 for 
+// MODE_SINE, MODE_SQUARE1, MODE_SQUARE2, MODE_TRIANGLE
+// so, if signal is switched off, it would not get on by changing the for on the signal
+{
+  PRINTS("\nsetWave ");
+  _modeLast = mode;
+
+  switch (mode) {
+  case MODE_OFF:
+    PRINTS("OFF");
+    bitSet(_regCtl, AD_SLEEP1);
+    bitSet(_regCtl, AD_SLEEP12);
+    break;
+  case MODE_SINE:
+    PRINTS("SINE");
+    bitClear(_regCtl, AD_OPBITEN);
+    bitClear(_regCtl, AD_MODE);
+    break;
+  case MODE_SQUARE1:
+    PRINTS("SQ1");
+    bitSet(_regCtl, AD_OPBITEN);
+    bitClear(_regCtl, AD_MODE);
+    bitSet(_regCtl, AD_DIV2);
+    break;
+  case MODE_SQUARE2:
+    PRINTS("SQ2");
+    bitSet(_regCtl, AD_OPBITEN);
+    bitClear(_regCtl, AD_MODE);
+    bitClear(_regCtl, AD_DIV2);
+    break;
+  case MODE_TRIANGLE:
+    PRINTS("TRNG");
+    bitClear(_regCtl, AD_OPBITEN);
+    bitSet(_regCtl, AD_MODE);
+    break;
+  case MODE_ON: // ShaggyDog JUN-2020
+    PRINTS("ON");
+    bitClear(_regCtl, AD_SLEEP1);
+    bitClear(_regCtl, AD_SLEEP12);
+    break;
   }
 
   spiSend(_regCtl);
@@ -255,7 +308,7 @@ boolean MD_AD9833::setFrequency(channel_t chan, float freq)
   PRINTX(" =", _regFreq[chan]);
 
   // select the address mask
-  switch (chan)
+  switch (chan) 
   {
   case CHAN_0:  freq_select = SEL_FREQ0; break;
   case CHAN_1:  freq_select = SEL_FREQ1; break;
@@ -284,7 +337,7 @@ boolean MD_AD9833::setPhase(channel_t chan, uint16_t phase)
   PRINTX(" =", _regPhase[chan]);
 
   // select the address mask
-  switch (chan)
+  switch (chan) 
   {
   case CHAN_0:  phase_select = SEL_PHASE0; break;
   case CHAN_1:  phase_select = SEL_PHASE1; break;
