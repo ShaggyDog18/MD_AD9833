@@ -32,4 +32,4 @@ or
 sigGen.setMode( MD_AD9833::MODE_OFF ); 
 ```
 
-**If you like and use the modified library, please, consider making a small donation using [PayPal](https://paypal.me/shaggyDog18/3USD)**
+**If you like and use the modified library, please, consider making a small "cup of coffee" donation using [PayPal](https://paypal.me/shaggyDog18/3USD)**
