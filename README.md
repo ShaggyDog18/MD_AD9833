@@ -15,10 +15,10 @@ Now, if the output signal is switched `OFF`, it would not get `ON` by operation 
 
 So, the signal can be separately switched on and off by the following commands (also works with the stock `setMode()` function):
 ```CPP
-// ON the output module signal
+// switch ON the output module signal
 sigGen.setModeSD( MD_AD9833::MODE_ON ); 
 
-// OFF the output module signal
+// switch OFF the output module signal
 sigGen.setModeSD( MD_AD9833::MODE_OFF ); 
 ```
 
