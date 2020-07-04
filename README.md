@@ -19,9 +19,7 @@ So, the signal can be separately switched on and off by the following commands (
 ```CPP
 // switch ON the output module signal
 sigGen.setModeSD( MD_AD9833::MODE_ON ); 
-```
 or
-```CPP
 // switch ON the output module signal
 sigGen.setMode( MD_AD9833::MODE_ON ); 
 ```
@@ -29,9 +27,7 @@ sigGen.setMode( MD_AD9833::MODE_ON );
 ```CPP
 // switch OFF the output module signal
 sigGen.setModeSD( MD_AD9833::MODE_OFF ); 
-```
 or
-```CPP
 // switch OFF the output module signal
 sigGen.setMode( MD_AD9833::MODE_OFF ); 
 ```
