@@ -29,6 +29,15 @@ Topics
 - \subpage pageDonation
 
 \page pageRevHistory Revision History
+Nov 2020 version 1.2.1
+- Modified basic example
+- Fixed reported issue with B28 setting on setFrequency() (discontinuity on freq change)
+- Fixed sequencing of FSYNC in spiSend()
+
+Sep 2020 version 1.2.0
+- Added reset() method
+- Test example converted to use MD_cmdProcessor
+
 Feb 2019 version 1.1.3
 - Fixed compile error at MD_AD9833.cpp:257:77
 - Some minor reorganizing of code
@@ -144,6 +153,7 @@ class MD_AD9833
   *
   * The AD9833 hardware is reset and set up to output a 1kHz Sine wave, 0 degrees
   * phase angle, CHAN_0 is selected as source for frequency and phase output.
+  * 
   */
   void begin(void);
 
@@ -300,4 +310,15 @@ private:
   // SPI related 
   void dumpCmd(uint16_t reg);       // debug routine
   void spiSend(uint16_t data);      // do the actual physical communications task
+  
+    /**
+   * Reset the AD9833 hardware output
+   * 
+   * The AD9833 reset function resets appropriate internal registers to 0 to provide 
+   * an analog output of midscale. Reset does not reset the phase, frequency, or 
+   * control registers.
+   *
+   * \param hold  optional parameter that holds the reset state. Default is false (no hold).
+   */
+   void reset(bool hold = false);
 };

@@ -58,7 +58,6 @@ void MD_AD9833::spiSend(uint16_t data)
   dumpCmd(data);
 #endif // AD_DEBUG
 
-  digitalWrite(_fsyncPin, LOW);
   if (_hardwareSPI)
   {
     SPI.beginTransaction(SPISettings(14000000, MSBFIRST, SPI_MODE2));
@@ -70,7 +69,6 @@ void MD_AD9833::spiSend(uint16_t data)
   else
   {
     digitalWrite(_fsyncPin, LOW);
-
     for (uint8_t i = 0; i < 16; i++)
     {
       digitalWrite(_dataPin, (data & 0x8000) ? HIGH : LOW);
@@ -79,7 +77,6 @@ void MD_AD9833::spiSend(uint16_t data)
       data <<= 1; // one less bit to do
     }
     digitalWrite(_dataPin, LOW); //idle low
-
     digitalWrite(_fsyncPin, HIGH);
   }
 }
@@ -101,7 +98,21 @@ MD_AD9833::~MD_AD9833(void)
     SPI.end(); 
 };
 
+void MD_AD9833::reset(bool hold)
+// Reset is done on a 1 to 0 transition
+{
+  bitSet(_regCtl, AD_RESET);
+  spiSend(_regCtl);
+  if (!hold)
+  {
+    bitClear(_regCtl, AD_RESET);
+    spiSend(_regCtl);
+  }
+}
+
 void MD_AD9833::begin(void)
+// Initialise the AD9833 and then set up safe values for the AD9833 device
+// Procedure from Figure 27 of in the AD9833 Data Sheet
 {
   // initialize the SPI interface
   if (_hardwareSPI)
@@ -121,19 +132,17 @@ void MD_AD9833::begin(void)
   pinMode(_fsyncPin, OUTPUT);
   digitalWrite(_fsyncPin, HIGH);
 
-  // Initialise the AD9833 and then set up safe values for the AD9833 device
-  // Procedure from Figure 27 of in the AD9833 Data Sheet
   _regCtl = 0;
-  bitSet(_regCtl, AD_B28);  // always write 2 words consecutively
-  bitSet(_regCtl, AD_RESET);  // Reset is done on a 1 to 0 transition
+
+  bitSet(_regCtl, AD_B28);  // always write 2 words consecutively for frequency
   spiSend(_regCtl);
 
+  reset(true);              // Reset and hold
   setFrequency(CHAN_0, AD_DEFAULT_FREQ);
   setFrequency(CHAN_1, AD_DEFAULT_FREQ);
   setPhase(CHAN_0, AD_DEFAULT_PHASE);
   setPhase(CHAN_1, AD_DEFAULT_PHASE);
-  bitClear(_regCtl, AD_RESET);
-  spiSend(_regCtl);
+  reset();                  // full transition
 
   setMode(MODE_SINE);
   setActiveFrequency(CHAN_0);
@@ -308,18 +317,20 @@ boolean MD_AD9833::setFrequency(channel_t chan, float freq)
   PRINTX(" =", _regFreq[chan]);
 
   // select the address mask
-  switch (chan) 
+  switch (chan)
   {
   case CHAN_0:  freq_select = SEL_FREQ0; break;
   case CHAN_1:  freq_select = SEL_FREQ1; break;
   }
 
   // Assumes B28 is on so we can send consecutive words
-  // B28 is set by default for the library
+  // B28 is set by default for the library, so just send it here
   // Now send the two parts of the frequency 14 bits at a time,
   // LSBs first
+
+  spiSend(_regCtl);   // set B28
   spiSend(freq_select | (uint16_t)(_regFreq[chan] & 0x3fff));
-  spiSend(freq_select | (uint16_t)(_regFreq[chan] >> 14) & 0x3fff);
+  spiSend(freq_select | (uint16_t)((_regFreq[chan] >> 14) & 0x3fff));
 
   return(true);
 }
@@ -337,7 +348,7 @@ boolean MD_AD9833::setPhase(channel_t chan, uint16_t phase)
   PRINTX(" =", _regPhase[chan]);
 
   // select the address mask
-  switch (chan) 
+  switch (chan)
   {
   case CHAN_0:  phase_select = SEL_PHASE0; break;
   case CHAN_1:  phase_select = SEL_PHASE1; break;
